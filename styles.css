@@ -594,18 +594,55 @@ section h2 {
     padding: 30px 0;
 }
 
+.direction-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.direction-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.direction-group-title {
+    font-size: 1.1rem;
+    color: var(--terminal-cyan);
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-family: 'Galmuri9', 'Press Start 2P', 'Courier New', monospace;
+    text-shadow: 0 0 10px var(--terminal-cyan);
+}
+
+.direction-description {
+    margin-bottom: 12px;
+}
+
+.direction-description p {
+    font-size: 0.9rem;
+    color: var(--terminal-white);
+    margin-bottom: 6px;
+    line-height: 1.5;
+    font-family: 'Galmuri11', monospace;
+}
+
+.direction-description p:last-child {
+    margin-bottom: 0;
+}
+
 .direction-cards {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    max-width: 600px;
-    margin: 0 auto;
+    gap: 12px;
 }
 
 .direction-card {
     background: var(--terminal-bg);
     border: 4px solid var(--terminal-green);
-    padding: 20px 25px;
+    padding: 12px 20px;
     display: block;
     box-shadow: 
         inset -4px -4px 0 var(--terminal-green),
@@ -662,6 +699,15 @@ section h2 {
     vertical-align: middle;
 }
 
+.direction-link-text {
+    font-size: 0.95rem;
+    color: var(--terminal-white);
+    margin: 0;
+    font-weight: 500;
+    font-family: 'Galmuri11', monospace;
+    text-align: center;
+}
+
 .direction-card h3 {
     font-size: 1rem;
     margin-bottom: 10px;
@@ -685,14 +731,6 @@ section h2 {
     font-style: italic;
 }
 
-/* 오시는 길 카드 */
-.direction-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    max-width: 600px;
-    margin: 30px auto 0;
-}
 
 /* 마음전하실 곳 섹션 */
 .account-section {
@@ -703,18 +741,32 @@ section h2 {
 .account-cards {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 30px;
     max-width: 600px;
     margin: 0 auto;
+}
+
+.account-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.account-group-title {
+    font-size: 1.1rem;
+    color: var(--terminal-cyan);
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-family: 'Galmuri9', 'Press Start 2P', 'Courier New', monospace;
+    text-shadow: 0 0 10px var(--terminal-cyan);
 }
 
 .account-card {
     background: var(--terminal-bg);
     border: 4px solid var(--terminal-green);
-    padding: 15px 25px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
-    gap: 20px;
     box-shadow: 
         inset -4px -4px 0 var(--terminal-green),
         0 0 15px var(--terminal-green);
@@ -759,6 +811,7 @@ section h2 {
 .account-content {
     flex: 1;
     text-align: left;
+    width: 100%;
 }
 
 .account-card h3 {
@@ -772,10 +825,17 @@ section h2 {
 .account-info {
     font-size: 0.95rem;
     color: var(--terminal-white);
-    margin-bottom: 4px;
+    margin: 0;
     font-weight: 500;
     font-family: 'Galmuri11', monospace;
     line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-name {
+    color: var(--terminal-cyan);
 }
 
 .account-info::before {
@@ -785,11 +845,7 @@ section h2 {
 }
 
 .copy-hint {
-    font-size: 0.7rem;
-    color: var(--terminal-gray);
-    margin-top: 3px;
-    opacity: 0.7;
-    transition: all 0.3s ease;
+    display: none;
 }
 
 /* 갤러리 섹션 */
