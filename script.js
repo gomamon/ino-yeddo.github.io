@@ -397,11 +397,90 @@ window.navermap_authFailure = function() {
     console.error('네이버 지도 API 인증 실패. Client ID를 확인해주세요.');
 };
 
+// BGM 초기화
+function initBGM() {
+    const bgm = document.getElementById('bgm');
+    const bgmToggle = document.getElementById('bgm-toggle');
+    const bgmIcon = document.getElementById('bgm-icon');
+    
+    if (!bgm) return;
+    
+    bgm.volume = 0.5; // 볼륨 50%로 설정
+    
+    // BGM 토글 버튼 이벤트
+    if (bgmToggle) {
+        bgmToggle.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play().catch(err => {
+                    console.log('BGM 재생 실패:', err);
+                });
+            } else {
+                bgm.pause();
+            }
+            updateBGMIcon();
+        });
+    }
+    
+    // BGM 재생 상태에 따라 아이콘 업데이트
+    const updateBGMIcon = () => {
+        if (bgmToggle) {
+            if (bgm.paused) {
+                bgmToggle.classList.add('muted');
+            } else {
+                bgmToggle.classList.remove('muted');
+            }
+        }
+    };
+    
+    // BGM 재생 상태 변경 감지
+    bgm.addEventListener('play', updateBGMIcon);
+    bgm.addEventListener('pause', updateBGMIcon);
+    
+    // 페이지 로드 시 즉시 재생 시도
+    const playBGM = () => {
+        // autoplay 속성이 있어도 브라우저 정책으로 차단될 수 있으므로 명시적으로 재생 시도
+        const attemptPlay = () => {
+            bgm.play().catch(err => {
+                console.log('BGM 자동 재생 실패, 사용자 상호작용 대기:', err);
+                // 자동 재생 실패 시 사용자 상호작용 후 재생
+                const playOnInteraction = () => {
+                    bgm.play().catch(e => console.log('BGM 재생 실패:', e));
+                    document.removeEventListener('click', playOnInteraction);
+                    document.removeEventListener('touchstart', playOnInteraction);
+                };
+                document.addEventListener('click', playOnInteraction, { once: true });
+                document.addEventListener('touchstart', playOnInteraction, { once: true });
+            });
+            updateBGMIcon();
+        };
+        
+        // 여러 시점에서 재생 시도
+        attemptPlay();
+        
+        // DOMContentLoaded 시도
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', attemptPlay);
+        }
+        
+        // load 이벤트 시도
+        if (document.readyState !== 'complete') {
+            window.addEventListener('load', attemptPlay);
+        }
+    };
+    
+    // 즉시 재생 시도
+    playBGM();
+    
+    // 초기 아이콘 상태 설정
+    updateBGMIcon();
+}
+
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', () => {
     initGallery();
     initScrollAnimation();
     initSmoothScroll();
+    initBGM();
     // 네이버 지도는 스크립트 로드 후 초기화
     window.addEventListener('load', () => {
         setTimeout(initNaverMap, 500);
