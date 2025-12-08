@@ -1003,7 +1003,7 @@ section h2 {
     overflow: hidden;
     box-shadow: 0 0 15px var(--terminal-green);
     position: relative;
-    width: 100%;
+    width: calc(100% - 40px);
     border: 2px solid var(--terminal-green);
 }
 
