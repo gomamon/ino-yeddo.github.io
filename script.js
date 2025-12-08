@@ -195,111 +195,126 @@ function initSmoothScroll() {
 }
 
 // 네이버 지도 초기화
+let naverMapRetryCount = 0;
+const maxNaverMapRetries = 25; // 최대 5초 (25 * 200ms)
+
 function initNaverMap() {
     const mapContainer = document.getElementById('naver-map');
-    if (!mapContainer) return;
+    if (!mapContainer) {
+        console.log('지도 컨테이너를 찾을 수 없습니다.');
+        return;
+    }
     
-    // 네이버 지도 Geocoding을 사용하여 주소를 좌표로 변환
-    naver.maps.Service.geocode({
-        query: '경기 성남시 분당구 판교역로226번길 16 W스퀘어컨벤션'
-    }, function(status, response) {
-        if (status !== naver.maps.Service.Status.OK) {
-            // Geocoding 실패 시 기본 좌표 사용
-            createMap(37.3956, 127.1112);
-            return;
-        }
-        
-        const result = response.result;
-        const items = result.items;
-        
-        if (items.length > 0) {
-            const point = items[0].point;
-            createMap(point.y, point.x);
+    // 네이버 지도 API 확인
+    if (typeof naver === 'undefined' || !naver.maps) {
+        if (naverMapRetryCount < maxNaverMapRetries) {
+            naverMapRetryCount++;
+            setTimeout(initNaverMap, 200);
         } else {
-            // 검색 결과가 없을 경우 기본 좌표 사용
-            createMap(37.3956, 127.1112);
+            console.error('네이버 지도 API 로드 실패');
         }
+        return;
+    }
+    
+    console.log('네이버 지도 API 로드 완료');
+    
+    // W스퀘어컨벤션 정확한 좌표 (네이버 지도 URL 기준)
+    const lat = 37.400489;  // 위도
+    const lng = 127.1114764; // 경도
+    
+    // 네이버 지도 생성
+    const mapOptions = {
+        center: new naver.maps.LatLng(lat, lng),
+        zoom: 17
+    };
+    
+    const map = new naver.maps.Map('naver-map', mapOptions);
+    
+    // 마커 추가
+    const marker = new naver.maps.Marker({
+        position: new naver.maps.LatLng(lat, lng),
+        map: map,
+        title: 'W스퀘어컨벤션 8층 채플홀'
     });
     
-    function createMap(lat, lng) {
-        // 네이버 지도 생성
-        const mapOptions = {
-            center: new naver.maps.LatLng(lat, lng),
-            zoom: 17
-        };
-        
-        const map = new naver.maps.Map('naver-map', mapOptions);
-        
-        // 마커 추가
-        const marker = new naver.maps.Marker({
-            position: new naver.maps.LatLng(lat, lng),
-            map: map,
-            title: 'W스퀘어컨벤션 8층 채플홀',
-            icon: {
-                content: '<div style="background: #e8b4a0; width: 40px; height: 40px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">💒</div>',
-                anchor: new naver.maps.Point(20, 20)
-            }
-        });
-        
-        // 정보창 추가
-        const infoWindow = new naver.maps.InfoWindow({
-            content: '<div style="padding: 12px; font-size: 14px; line-height: 1.6; min-width: 200px;"><strong style="font-size: 16px; color: #8b6f47; display: block; margin-bottom: 5px;">W스퀘어컨벤션 8층 채플홀</strong><span style="color: #666; display: block;">경기 성남시 분당구 판교역로226번길 16</span></div>'
-        });
-        
-        // 마커 클릭 시 정보창 표시
-        naver.maps.Event.addListener(marker, 'click', function() {
-            if (infoWindow.getMap()) {
-                infoWindow.close();
-            } else {
-                infoWindow.open(map, marker);
-            }
-        });
-        
-        // 지도 로드 시 정보창 자동 열기
-        infoWindow.open(map, marker);
-    }
+    // 정보창 추가
+    const infoWindow = new naver.maps.InfoWindow({
+        content: '<div style="padding: 12px;"><strong>W스퀘어컨벤션 8층 채플홀</strong><br>경기 성남시 분당구 판교역로226번길 16</div>'
+    });
+    
+    // 지도 로드 시 정보창 자동 열기
+    infoWindow.open(map, marker);
 }
 
 // 계좌번호 복사 기능
 function initAccountCopy() {
     const accountCards = document.querySelectorAll('.account-card');
     
+    if (accountCards.length === 0) {
+        console.log('계좌 카드를 찾을 수 없습니다.');
+        return;
+    }
+    
     accountCards.forEach(card => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
             const accountNumber = card.getAttribute('data-account');
             const bank = card.getAttribute('data-bank');
             const fullText = `${bank} ${accountNumber}`;
             
-            // 클립보드에 복사
+            console.log('복사 시도:', fullText);
+            
+            // 클립보드에 복사 (은행명 포함)
+            let copied = false;
+            
+            // 방법 1: Clipboard API (HTTPS 필요)
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(accountNumber).then(() => {
-                    showCopyMessage(card, '계좌번호가 복사되었습니다!');
-                }).catch(() => {
-                    fallbackCopy(accountNumber, card);
-                });
+                try {
+                    await navigator.clipboard.writeText(fullText);
+                    copied = true;
+                    console.log('Clipboard API로 복사 성공');
+                } catch (err) {
+                    console.log('Clipboard API 실패:', err);
+                }
+            }
+            
+            // 방법 2: Fallback (모든 환경에서 작동)
+            if (!copied) {
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = fullText;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    if (successful) {
+                        copied = true;
+                        console.log('execCommand로 복사 성공');
+                    } else {
+                        console.log('execCommand 실패');
+                    }
+                } catch (err) {
+                    console.log('execCommand 에러:', err);
+                }
+            }
+            
+            if (copied) {
+                showCopyMessage(card, '계좌번호가 복사되었습니다!');
             } else {
-                fallbackCopy(accountNumber, card);
+                showCopyMessage(card, '복사 실패. 계좌번호를 직접 선택해주세요.');
             }
         });
     });
-}
-
-function fallbackCopy(text, card) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.opacity = '0';
-    document.body.appendChild(textArea);
-    textArea.select();
     
-    try {
-        document.execCommand('copy');
-        showCopyMessage(card, '계좌번호가 복사되었습니다!');
-    } catch (err) {
-        showCopyMessage(card, '복사 실패. 계좌번호를 직접 선택해주세요.');
-    }
-    
-    document.body.removeChild(textArea);
+    console.log('계좌번호 복사 기능 초기화 완료:', accountCards.length, '개');
 }
 
 function showCopyMessage(card, message) {
@@ -377,12 +392,20 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// 네이버 지도 인증 실패 처리
+window.navermap_authFailure = function() {
+    console.error('네이버 지도 API 인증 실패. Client ID를 확인해주세요.');
+};
+
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', () => {
     initGallery();
     initScrollAnimation();
     initSmoothScroll();
-    initNaverMap();
+    // 네이버 지도는 스크립트 로드 후 초기화
+    window.addEventListener('load', () => {
+        setTimeout(initNaverMap, 500);
+    });
     initAccountCopy();
 });
 
