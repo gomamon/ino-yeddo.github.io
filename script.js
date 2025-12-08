@@ -405,7 +405,7 @@ function initBGM() {
     
     if (!bgm) return;
     
-    bgm.volume = 0.5; // 볼륨 50%로 설정
+    bgm.volume = 0.3; // 볼륨 30%로 설정
     
     // BGM 토글 버튼 이벤트
     if (bgmToggle) {
