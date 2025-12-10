@@ -82,6 +82,41 @@ function initScrollAnimation() {
     });
 }
 
+// 타임라인 이미지 중앙 감지 및 호버 효과
+function initTimelineScrollHover() {
+    const timelineImages = document.querySelectorAll('.timeline-image');
+    
+    if (timelineImages.length === 0) return;
+    
+    const observerOptions = {
+        threshold: 0.5, // 이미지의 50%가 보일 때
+        rootMargin: '-40% 0px -40% 0px' // 뷰포트 중앙 20% 영역
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // 다른 이미지의 active 클래스 제거
+                timelineImages.forEach(img => {
+                    if (img !== entry.target) {
+                        img.classList.remove('active');
+                    }
+                });
+                // 현재 이미지에 active 클래스 추가
+                entry.target.classList.add('active');
+            } else {
+                // 뷰포트를 벗어나면 active 클래스 제거
+                entry.target.classList.remove('active');
+            }
+        });
+    }, observerOptions);
+    
+    // 모든 타임라인 이미지 관찰
+    timelineImages.forEach(image => {
+        observer.observe(image);
+    });
+}
+
 // 축하 메시지 기능
 function initMessageSystem() {
     const submitBtn = document.getElementById('submit-message');
@@ -482,6 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollAnimation();
     initSmoothScroll();
     initBGM();
+    initTimelineScrollHover();
     // 네이버 지도는 스크립트 로드 후 초기화
     window.addEventListener('load', () => {
         setTimeout(initNaverMap, 500);
