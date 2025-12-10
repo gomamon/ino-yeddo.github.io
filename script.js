@@ -405,7 +405,7 @@ function initBGM() {
     
     if (!bgm) return;
     
-    bgm.volume = 0.3; // 볼륨 30%로 설정
+    bgm.volume = 0.1; // 볼륨 10%로 설정
     
     // BGM 토글 버튼 이벤트
     if (bgmToggle) {
@@ -474,6 +474,7 @@ function initBGM() {
     // 초기 아이콘 상태 설정
     updateBGMIcon();
 }
+
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', () => {
