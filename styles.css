@@ -862,7 +862,6 @@ section h2 {
 .direction-card p {
     font-size: 0.95rem;
     color: var(--terminal-white);
-    margin-bottom: 6px;
     line-height: 1.5;
 }
 
